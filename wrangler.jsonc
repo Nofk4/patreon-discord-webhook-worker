@@ -5,7 +5,7 @@
   "compatibility_date": "2026-08-16",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "WEBHOOK_NAME": "Naoki",
+    "WEBHOOK_NAME": "CHANGE_ME",
     "DISCORD_ROLE_ID": "CHANGE_ME",
     "PATREON_VANITY": "CHANGE_ME"
   },
