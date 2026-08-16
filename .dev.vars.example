@@ -1,4 +1,0 @@
-# Copie este arquivo como .dev.vars somente para testes locais.
-# Nunca envie o arquivo .dev.vars real ao GitHub.
-DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/SEU_ID/SEU_TOKEN"
-PATREON_WEBHOOK_SECRET="SEU_SECRET_DO_PATREON"
