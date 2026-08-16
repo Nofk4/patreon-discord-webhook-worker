@@ -58,7 +58,7 @@ Edit `wrangler.jsonc`:
 
 ```jsonc
 "vars": {
-  "WEBHOOK_NAME": "Naoki",
+  "WEBHOOK_NAME": "YOUR_WEBHOOK_NAME",
   "DISCORD_ROLE_ID": "YOUR_ROLE_ID",
   "PATREON_VANITY": "YOUR_PAGE_NAME"
 }
