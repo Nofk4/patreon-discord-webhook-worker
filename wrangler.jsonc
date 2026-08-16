@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "patreon-discord-webhook-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "WEBHOOK_NAME": "Naoki",
+    "DISCORD_ROLE_ID": "CHANGE_ME",
+    "PATREON_VANITY": "CHANGE_ME"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
