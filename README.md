@@ -1,11 +1,11 @@
-# Patreon → Discord com Cloudflare Worker
+# Patreon → Discord with a Cloudflare Worker
 
-Publica automaticamente uma mensagem no Discord quando um post novo é publicado no Patreon.
+Automatically posts a Discord message whenever a new Patreon post is published.
 
-Não usa bot tradicional, Discord Bot Token, VPS ou processo ligado 24 horas. O fluxo é:
+This project does not require a traditional Discord bot, a Discord bot token, a VPS, or a process running 24/7. The flow is:
 
 ```text
-Post novo no Patreon
+New Patreon post
         ↓
 Patreon Webhook (posts:publish)
         ↓
@@ -14,61 +14,61 @@ Cloudflare Worker
 Discord Webhook
 ```
 
-A mensagem enviada fica assim:
+The message sent to Discord looks like this:
 
 ```md
-## [Check out on Patreon](LINK_EXATO_DO_POST)
-## Título do post @Cargo
+## [Check out on Patreon](EXACT_POST_URL)
+## Post title @Role
 ```
 
-O Worker não envia imagem, descrição ou embed.
+The Worker does not send an image, description, or embed.
 
-## O que você precisa
+## Requirements
 
-- Uma página de criador no Patreon.
-- Um servidor do Discord no qual você possa criar cargos e webhooks.
-- Uma conta gratuita da Cloudflare.
-- Node.js 18 ou mais recente somente se escolher a instalação pelo terminal.
+- A Patreon creator page.
+- A Discord server where you can create roles and webhooks.
+- A free Cloudflare account.
+- Node.js 18 or newer only if you choose the command-line setup.
 
-## 1. Criar o cargo no Discord
+## 1. Create the Discord role
 
-1. Abra o servidor.
-2. Entre em **Configurações do servidor → Cargos**.
-3. Crie o cargo que será marcado, por exemplo `Member`.
-4. Ative **Permitir que qualquer pessoa mencione este cargo**.
-5. Dê o cargo às pessoas que devem receber a notificação.
-6. Em **Configurações de usuário → Avançado**, ative o **Modo desenvolvedor**.
-7. Clique com o botão direito no cargo e escolha **Copiar ID do cargo**.
+1. Open your Discord server.
+2. Go to **Server Settings → Roles**.
+3. Create the role that should be mentioned, such as `Member`.
+4. Enable **Allow anyone to mention this role**.
+5. Assign the role to everyone who should receive the notification.
+6. Go to **User Settings → Advanced** and enable **Developer Mode**.
+7. Right-click the role and select **Copy Role ID**.
 
-O ID é um número parecido com `1221213587410784377`. Ele não é uma senha.
+The ID is a number similar to `1221213587410784377`. It is not a password.
 
-## 2. Criar o webhook do Discord
+## 2. Create the Discord webhook
 
-1. Abra **Editar canal → Integrações → Webhooks**.
-2. Clique em **Novo webhook**.
-3. Escolha nome, avatar e canal.
-4. Clique em **Copiar URL do webhook**.
+1. Open **Edit Channel → Integrations → Webhooks**.
+2. Click **New Webhook**.
+3. Choose its name, avatar, and channel.
+4. Click **Copy Webhook URL**.
 
 > [!CAUTION]
-> A URL do webhook funciona como uma senha. Não envie em chats, prints, commits ou issues do GitHub.
+> The webhook URL works like a password. Never share it in chats, screenshots, Git commits, or GitHub issues.
 
-## 3. Configurar o projeto
+## 3. Configure the project
 
-Edite `wrangler.jsonc`:
+Edit `wrangler.jsonc`:
 
 ```jsonc
 "vars": {
   "WEBHOOK_NAME": "Naoki",
-  "DISCORD_ROLE_ID": "ID_DO_CARGO",
-  "PATREON_VANITY": "NOME_DA_SUA_PAGINA"
+  "DISCORD_ROLE_ID": "YOUR_ROLE_ID",
+  "PATREON_VANITY": "YOUR_PAGE_NAME"
 }
 ```
 
-`PATREON_VANITY` é a parte do endereço depois de `patreon.com/`. Por exemplo, para `patreon.com/Nobafka`, use `Nobafka`.
+`PATREON_VANITY` is the part of your creator page URL after `patreon.com/`. For example, use `Nobafka` for `patreon.com/Nobafka`.
 
-Não coloque `DISCORD_WEBHOOK_URL` nem `PATREON_WEBHOOK_SECRET` no `wrangler.jsonc`.
+Do not put `DISCORD_WEBHOOK_URL` or `PATREON_WEBHOOK_SECRET` in `wrangler.jsonc`.
 
-## 4. Implantar pelo terminal
+## 4. Deploy from the command line
 
 ```powershell
 git clone https://github.com/Nofk4/patreon-discord-webhook-worker.git
@@ -79,44 +79,44 @@ npx wrangler secret put DISCORD_WEBHOOK_URL
 npx wrangler deploy
 ```
 
-Quando `wrangler secret put` pedir o valor, cole somente a URL pura copiada do Discord:
+When `wrangler secret put` asks for the value, paste only the raw URL copied from Discord:
 
 ```text
 https://discord.com/api/webhooks/ID/TOKEN
 ```
 
-Não coloque aspas, Markdown ou `DISCORD_WEBHOOK_URL=` junto.
+Do not include quotes, Markdown, or `DISCORD_WEBHOOK_URL=`.
 
-O deploy mostrará uma URL parecida com:
+The deployment will display a URL similar to:
 
 ```text
-https://patreon-discord-webhook-worker.seu-subdominio.workers.dev
+https://patreon-discord-webhook-worker.your-subdomain.workers.dev
 ```
 
-Abra essa URL. O JSON deverá mostrar `discordConfigured: true` e `patreonConfigured: false`.
+Open that URL. The JSON response should show `discordConfigured: true` and `patreonConfigured: false`.
 
-## 5. Criar o webhook no Patreon
+## 5. Create the Patreon webhook
 
-1. Abra [Patreon Platform — My Webhooks](https://www.patreon.com/portal/registration/register-webhooks).
-2. Entre com a conta que administra sua página de criador.
-3. Clique em **Create Webhook**, **Register Webhook** ou **Add Webhook**.
-4. No campo `URI`/`Webhook URL`, cole a URL pública do Worker.
-5. Selecione sua campanha.
-6. Marque somente o evento `posts:publish`.
-7. Salve.
-8. Abra os detalhes do webhook e copie o `Secret`.
+1. Open [Patreon Platform — My Webhooks](https://www.patreon.com/portal/registration/register-webhooks).
+2. Sign in with the account that manages your creator page.
+3. Click **Create Webhook**, **Register Webhook**, or **Add Webhook**.
+4. Paste the public Worker URL into the `URI` or `Webhook URL` field.
+5. Select your campaign.
+6. Enable only the `posts:publish` event.
+7. Save the webhook.
+8. Open its details and copy the `Secret`.
 
-Não compartilhe o secret do Patreon.
+Do not share the Patreon secret.
 
-## 6. Adicionar o secret do Patreon
+## 6. Add the Patreon secret
 
-No terminal, dentro do projeto:
+Run this command from the project directory:
 
 ```powershell
 npx wrangler secret put PATREON_WEBHOOK_SECRET
 ```
 
-Cole o secret quando solicitado. Depois abra novamente a URL do Worker. O resultado deverá conter:
+Paste the secret when prompted. Open the Worker URL again. The response should now contain:
 
 ```json
 {
@@ -125,73 +125,73 @@ Cole o secret quando solicitado. Depois abra novamente a URL do Worker. O result
 }
 ```
 
-## 7. Testar
+## 7. Test the integration
 
-1. Abra o webhook no painel do Patreon.
-2. Use **Send Test** ou **Test Webhook**.
-3. Selecione `posts:publish`.
-4. Confira o canal do Discord.
+1. Open the webhook in the Patreon dashboard.
+2. Use **Send Test** or **Test Webhook**.
+3. Select `posts:publish`.
+4. Check your Discord channel.
 
-O teste do Patreon pode usar título e ID fictícios. Uma publicação real contém o ID do post recém-publicado e gera o link correto.
+Patreon's test event may contain a placeholder title and post ID. A real publication contains the newly published post ID and produces the correct direct link.
 
-## Instalação somente pelo painel da Cloudflare
+## Cloudflare dashboard-only setup
 
-Se você não quiser usar o terminal:
+If you do not want to use the command line:
 
-1. Abra **Workers & Pages** no painel da Cloudflare.
-2. Crie um Worker.
-3. Abra **Edit code**.
-4. Copie todo o conteúdo de `src/index.js`, substitua o código existente e faça o deploy.
-5. Em **Settings → Variables and Secrets**, adicione como texto:
+1. Open **Workers & Pages** in the Cloudflare dashboard.
+2. Create a Worker.
+3. Open **Edit code**.
+4. Copy the entire contents of `src/index.js`, replace the existing code, and deploy it.
+5. Under **Settings → Variables and Secrets**, add these as plain-text variables:
    - `WEBHOOK_NAME`
    - `DISCORD_ROLE_ID`
    - `PATREON_VANITY`
-6. Adicione como **Secret**:
+6. Add these as **Secrets**:
    - `DISCORD_WEBHOOK_URL`
    - `PATREON_WEBHOOK_SECRET`
-7. Faça outro deploy caso o painel solicite.
+7. Deploy again if the dashboard asks you to do so.
 
-## Personalização
+## Customization
 
-As opções públicas ficam em `wrangler.jsonc` ou em **Variables and Secrets**:
+Public configuration options can be set in `wrangler.jsonc` or under **Variables and Secrets**:
 
-| Variável | Exemplo | Função |
+| Variable | Example | Purpose |
 | --- | --- | --- |
-| `WEBHOOK_NAME` | `Naoki` | Nome exibido pelo webhook |
-| `DISCORD_ROLE_ID` | `1221213587410784377` | Cargo marcado na mensagem |
-| `PATREON_VANITY` | `Nobafka` | Nome usado para construir a URL do post |
+| `WEBHOOK_NAME` | `Naoki` | Name displayed by the Discord webhook |
+| `DISCORD_ROLE_ID` | `1221213587410784377` | Role mentioned in the message |
+| `PATREON_VANITY` | `Nobafka` | Creator page name used to build the post URL |
 
-## Segurança
+## Security
 
-- O Worker valida `X-Patreon-Signature` antes de processar o evento.
-- Apenas o ID configurado em `allowed_mentions.roles` pode gerar uma menção.
-- Secrets não ficam no código nem no `wrangler.jsonc`.
-- `.dev.vars`, `.env` e arquivos equivalentes estão no `.gitignore`.
-- Se uma URL do Discord vazar, apague ou regenere o webhook imediatamente.
+- The Worker validates `X-Patreon-Signature` before processing an event.
+- Only the role ID configured in `allowed_mentions.roles` can generate a mention.
+- Secrets are never stored in the source code or `wrangler.jsonc`.
+- `.dev.vars`, `.env`, and equivalent local files are included in `.gitignore`.
+- If a Discord webhook URL leaks, delete or regenerate the webhook immediately.
 
-## Solução de problemas
+## Troubleshooting
 
-### `401 Assinatura inválida`
+### `401 Invalid signature`
 
-O valor de `PATREON_WEBHOOK_SECRET` está incorreto. Copie novamente o secret do mesmo webhook que aponta para este Worker.
+The `PATREON_WEBHOOK_SECRET` value is incorrect. Copy the secret again from the same Patreon webhook that points to this Worker.
 
 ### `500 Invalid URL string`
 
-O valor de `DISCORD_WEBHOOK_URL` não é uma URL pura. Copie novamente pelo Discord e remova aspas, Markdown ou nomes de variável.
+The `DISCORD_WEBHOOK_URL` value is not a raw URL. Copy it again from Discord and remove quotes, Markdown, or variable names.
 
-### `502 O Discord recusou a mensagem`
+### `502 Discord rejected the message`
 
-O webhook pode ter sido apagado, regenerado ou estar apontando para um canal sem acesso.
+The webhook may have been deleted, regenerated, or configured for a channel it can no longer access.
 
-### O cargo aparece, mas ninguém recebe notificação
+### The role is displayed, but nobody receives a notification
 
-Confirme que o cargo está configurado como mencionável e foi atribuído aos membros corretos.
+Make sure the role is mentionable and assigned to the correct members.
 
-### O teste abre uma página genérica ou um post inexistente
+### The test opens a generic page or a post that does not exist
 
-O teste do Patreon pode usar um payload fictício. Em posts reais, o Worker prefere a URL recebida no evento e, se ela não vier, constrói a URL usando o título, o ID real do post e `PATREON_VANITY`.
+Patreon's test payload may contain placeholder data. For real posts, the Worker prefers the URL included in the event. If it is unavailable, the Worker builds the URL from the post title, real post ID, and `PATREON_VANITY`.
 
-## Comandos úteis
+## Useful commands
 
 ```powershell
 npm run check
@@ -200,6 +200,6 @@ npm run deploy
 npx wrangler tail
 ```
 
-## Licença
+## License
 
-MIT. Veja `LICENSE`.
+MIT. See `LICENSE`.
